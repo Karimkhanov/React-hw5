@@ -1,0 +1,27 @@
+.post-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  width: 100%;
+  max-width: 320px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  text-align: left;
+  transition: transform 0.2s;
+}
+
+.post-card:hover {
+  transform: translateY(-5px);
+}
+
+.post-card-title {
+  margin-top: 0;
+  font-size: 1.2em;
+  color: #333;
+  /* Capitalize the first letter */
+  text-transform: capitalize;
+}
+
+.post-card-body {
+  color: #666;
+}
