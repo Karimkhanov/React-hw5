@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+// 1. Импортируем useEffect вместе с useState
+import React, { useState, useEffect } from 'react';
 import PostCard from './PostCard';
 import './PostList.css';
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  // 1. Добавляем новое состояние для поискового запроса
+  const [isLoading, setIsLoading] = useState(true); // Устанавливаем true по умолчанию
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Функция для загрузки данных
   const fetchPosts = async () => {
-    setIsLoading(true);
     try {
       const response = await fetch('https://jsonplaceholder.typicode.com/posts');
       const data = await response.json();
@@ -17,50 +17,51 @@ const PostList = () => {
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Убираем флаг загрузки после завершения
     }
   };
 
-  // 2. Создаем отфильтрованный массив ПЕРЕД рендерингом.
-  // Этот массив будет использоваться для отображения.
+  // 2. Добавляем хук useEffect
+  useEffect(() => {
+    // Вызываем нашу функцию загрузки данных внутри useEffect
+    fetchPosts();
+  }, []); // 3. Пустой массив зависимостей!
+
+  // Логика фильтрации
   const filteredPosts = posts.filter(post =>
     post.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
+  //  Условный рендеринг для состояния загрузки
+  if (isLoading) {
+    return <div className="post-list-container"><p>Loading posts...</p></div>;
+  }
 
   return (
     <div className="post-list-container">
       <h1>My Posts</h1>
-      <button onClick={fetchPosts} disabled={isLoading || posts.length > 0}>
-        {isLoading ? 'Loading...' : 'Load Posts'}
-      </button>
 
-      {/* 3. Добавляем поле ввода и кнопку очистки */}
-      {/* Мы показываем их только если посты уже загружены */}
-      {posts.length > 0 && (
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search by title..."
-            className="search-input"
-            value={searchTerm} // Привязываем значение инпута к состоянию
-            onChange={e => setSearchTerm(e.target.value)} // Обновляем состояние при вводе
-          />
-          <button className="clear-button" onClick={() => setSearchTerm('')}>
-            Clear
-          </button>
-        </div>
-      )}
+      {/* Поле поиска и кнопка очистки */}
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="Search by title..."
+          className="search-input"
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+        />
+        <button className="clear-button" onClick={() => setSearchTerm('')}>
+          Clear
+        </button>
+      </div>
 
-      {/* 4. Используем отфильтрованный массив `filteredPosts` для отображения */}
-      {/* Вместо `posts.map` теперь `filteredPosts.map` */}
       <ul className="post-list">
         {filteredPosts.map((post) => (
           <PostCard key={post.id} title={post.title} body={post.body} />
         ))}
       </ul>
       
-      {/* Дополнительно: сообщение, если ничего не найдено */}
-      {posts.length > 0 && filteredPosts.length === 0 && (
+      {filteredPosts.length === 0 && (
         <p>No posts found matching your search.</p>
       )}
     </div>
